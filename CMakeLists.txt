@@ -13,3 +13,13 @@ file(GLOB_RECURSE TPP_FILES src *.tpp)
 set(SOURCE_FILES ${H_FILES} ${CPP_FILES} ${TPP_FILES})
 
 add_library(glk STATIC ${SOURCE_FILES})
+
+install(
+	TARGETS glk
+	ARCHIVE DESTINATION lib
+)
+
+install(
+	DIRECTORY include/glk
+	DESTINATION include
+)
