@@ -16,7 +16,7 @@ namespace glk {
 		template <class T>
 		Uniform<T>::Uniform(Program const &program, std::string const &name)
 		: _program(&program), _location(glGetUniformLocation(program.id(), name.c_str())) {
-			CATCH_GL_ERROR();
+			CHECK_GL_ERROR();
 			if (_location == -1)
 				glk::warn("Uniform "s + name + " could not be found.");
 		}
@@ -25,7 +25,7 @@ namespace glk {
 		T const &Uniform<T>::operator = (T const &rhs) {
 			_program->use();
 			detail::access<T>::set(_location, rhs);
-			CATCH_GL_ERROR();
+			CHECK_GL_ERROR();
 			return rhs;
 		}
 

@@ -6,10 +6,18 @@
 #include <glk/util.h>
 #include <glk/stringLiterals.h>
 
-#define CATCH_GL_ERROR_(call)	do{ GLenum err = glGetError(); if(err) throw glk::gl::GlException(glk::gl::getError(err), call, __FILE__, __LINE__); }while(0)
-#define CATCH_GL_ERROR()		CATCH_GL_ERROR_("<unknown>")
+#define CHECK_GL_ERROR_(call)\
+	do{\
+		GLenum err = glGetError();\
+		if(err)\
+			throw glk::gl::GlException(glk::gl::getError(err), call, __FILE__, __LINE__);\
+	} while(false)
 
-#define TRY_GL(call)			do{ (call); CATCH_GL_ERROR_(#call); }while(0)
+#define CHECK_GL_ERROR()\
+	CHECK_GL_ERROR_("<unknown>")
+
+#define TRY_GL(call)\
+	do{ (call); CHECK_GL_ERROR_(#call); } while(false)
 
 namespace glk {
 	namespace gl {

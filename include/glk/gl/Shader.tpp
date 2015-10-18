@@ -12,7 +12,7 @@ namespace glk {
 		template <GLenum TglType>
 		Shader<TglType>::Shader(std::string const &source)
 		: _id(glCreateShader(TglType)) {
-			CATCH_GL_ERROR();
+			CHECK_GL_ERROR();
 
 			char const *src = source.c_str();
 			TRY_GL(glShaderSource(_id, 1, &src, nullptr));
