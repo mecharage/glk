@@ -28,6 +28,16 @@ namespace glk {
 		}
 
 		template <class AttrDesc>
+		Instancer <AttrDesc> &Instancer<AttrDesc>::operator =(gl::Instancer<AttrDesc> &&rhs) {
+			TRY_GL(glDeleteBuffers(1, &_vertexVbo));
+			_vertexVbo = rhs._vertexVbo;
+			_verticeCount = rhs._verticeCount;
+			rhs._vertexVbo = 0u;
+			rhs._verticeCount = 0u;
+			return *this;
+		}
+
+		template <class AttrDesc>
 		GLuint Instancer<AttrDesc>::verticeCount() const {
 			return _verticeCount;
 		}
@@ -38,12 +48,12 @@ namespace glk {
 		}
 
 		template <class AttrDesc>
-		InstancerQueue<AttrDesc> Instancer<AttrDesc>::makeQueue() const {
+		InstanceQueue <AttrDesc> Instancer<AttrDesc>::makeQueue() const {
 			return {*this};
 		}
 
 		template <class AttrDesc>
-		InstancerQueue<AttrDesc>::InstancerQueue(Instancer<AttrDesc> const &instancer)
+		InstanceQueue<AttrDesc>::InstanceQueue(Instancer <AttrDesc> const &instancer)
 			: _instancer{instancer}
 			, _capacity{0u} {
 			TRY_GL(glGenVertexArrays(1, &_attrVao));
@@ -66,7 +76,7 @@ namespace glk {
 		}
 
 		template <class AttrDesc>
-		InstancerQueue<AttrDesc>::InstancerQueue(InstancerQueue &&other)
+		InstanceQueue<AttrDesc>::InstanceQueue(InstanceQueue &&other)
 			: _instancer{other._instancer}
 			, _attrVao{other._attrVao}
 			, _attrVbo{other._attrVbo}
@@ -78,23 +88,38 @@ namespace glk {
 		}
 
 		template <class AttrDesc>
-		InstancerQueue<AttrDesc>::~InstancerQueue() {
+		InstanceQueue<AttrDesc>::~InstanceQueue() {
 			TRY_GL(glDeleteVertexArrays(1, &_attrVbo));
 			TRY_GL(glDeleteBuffers(1, &_attrVao));
 		}
 
 		template <class AttrDesc>
-		void InstancerQueue<AttrDesc>::enqueue(AttrDesc const &attribs) {
+		InstanceQueue <AttrDesc> &InstanceQueue<AttrDesc>::operator =(gl::InstanceQueue<AttrDesc> &&rhs) {
+			TRY_GL(glDeleteVertexArrays(1, &_attrVbo));
+			TRY_GL(glDeleteBuffers(1, &_attrVao));
+			_instancer = rhs._instancer;
+			_attrVao = rhs._attrVao;
+			_attrVbo = rhs._attrVbo;
+			_attribs = std::move(rhs._attribs);
+			_capacity = rhs._capacity;
+			rhs._attrVao = 0u;
+			rhs._attrVbo = 0u;
+			rhs._capacity = 0u;
+			return *this;
+		}
+
+		template <class AttrDesc>
+		void InstanceQueue<AttrDesc>::enqueue(AttrDesc const &attribs) {
 			_attribs.push_back(attribs);
 		}
 
 		template <class AttrDesc>
-		void InstancerQueue<AttrDesc>::clear() {
+		void InstanceQueue<AttrDesc>::clear() {
 			_attribs.clear();
 		}
 
 		template <class AttrDesc>
-		void InstancerQueue<AttrDesc>::uploadAttribs() {
+		void InstanceQueue<AttrDesc>::uploadAttribs() {
 			TRY_GL(glBindVertexArray(_attrVao));
 
 			if(_attribs.capacity() > _capacity) {
@@ -105,7 +130,7 @@ namespace glk {
 		}
 
 		template <class AttrDesc>
-		void InstancerQueue<AttrDesc>::display() {
+		void InstanceQueue<AttrDesc>::display() {
 			TRY_GL(glBindVertexArray(_attrVao));
 			TRY_GL(glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, _instancer.verticeCount(), _attribs.size()));
 		}

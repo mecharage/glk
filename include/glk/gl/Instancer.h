@@ -19,7 +19,7 @@ namespace glk {
 	namespace gl {
 
 		template <class>
-		struct InstancerQueue;
+		struct InstanceQueue;
 
 		template <class AttrDesc>
 		struct Instancer {
@@ -28,10 +28,11 @@ namespace glk {
 				typename std::iterator_traits<InputIter>::value_type, typename AttrDesc::VertexType
 			>{}>>
 			Instancer(InputIter vertBeg, InputIter vertEnd);
-
 			Instancer(Instancer &&other);
 
 			~Instancer();
+
+			Instancer &operator =(Instancer &&rhs);
 
 			Instancer(Instancer const &) = delete;
 			Instancer &operator =(Instancer const &) = delete;
@@ -39,7 +40,7 @@ namespace glk {
 			GLuint verticeCount() const;
 			GLuint vertexVbo() const;
 
-			InstancerQueue<AttrDesc> makeQueue() const;
+			InstanceQueue<AttrDesc> makeQueue() const;
 
 		private:
 			GLuint _vertexVbo;
@@ -47,16 +48,18 @@ namespace glk {
 		};
 
 		template <class AttrDesc>
-		struct InstancerQueue {
+		struct InstanceQueue {
 			using VertexType = glm::vec2;
 
-			InstancerQueue(Instancer<AttrDesc> const &instancer);
-			InstancerQueue(InstancerQueue &&other);
+			InstanceQueue(Instancer<AttrDesc> const &instancer);
+			InstanceQueue(InstanceQueue &&other);
 
-			~InstancerQueue();
+			~InstanceQueue();
 
-			InstancerQueue(InstancerQueue const &) = delete;
-			InstancerQueue &operator = (InstancerQueue const &) = delete;
+			InstanceQueue &operator = (InstanceQueue &&rhs);
+
+			InstanceQueue(InstanceQueue const &) = delete;
+			InstanceQueue &operator =(InstanceQueue const &) = delete;
 
 			void enqueue(AttrDesc const &attribs);
 
