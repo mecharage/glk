@@ -65,7 +65,7 @@ namespace glk {
 
 			void clear();
 
-			void uploadAttribs();
+			void upload();
 
 			void display();
 
@@ -74,6 +74,7 @@ namespace glk {
 			GLuint _attrVao, _attrVbo;
 			std::vector<AttrDesc> _attribs;
 			GLuint _capacity;
+			bool _dirty;
 		};
 	}
 }
