@@ -7,11 +7,6 @@
 #include <glk/gl/util.h>
 #include <glk/gl/detail/Instancer.h>
 
-// Defines the struct `name` with members declared from `members`,
-// and a static setAttribPointers() function which sets attribute pointers
-// for each member.
-// `members` should be a double-parenthesised Boost.PP seq,
-// i.e. `((int, foo))((float, bar))`
 #define GLK_GL_ATTRIB_STRUCT(name, members)\
     GLK_GL_ATTRIB_STRUCT_(name, GLK_PP_SEQ_DOUBLE_PARENS(members))
 

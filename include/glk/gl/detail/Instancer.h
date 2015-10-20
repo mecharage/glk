@@ -12,8 +12,6 @@
 #include <glk/tmp.h>
 #include <glk/gl/util.h>
 
-#include <iostream>
-
 namespace glk {
 	namespace gl {
 		namespace attribPointers {
@@ -25,15 +23,7 @@ namespace glk {
     template <>\
     struct tag_<type> : tag_<syn> {};
 
-			TAG_SYN(float, float[1]);
-
-			TAG_SYN(glm::vec2, float[2]);
-			TAG_SYN(glm::vec3, float[3]);
-			TAG_SYN(glm::vec4, float[4]);
-
-			TAG_SYN(glm::mat2, float[2][2]);
-			TAG_SYN(glm::mat3, float[3][3]);
-			TAG_SYN(glm::mat4, float[4][4]);
+#include <glk/gl/detail/glmTypes.h>
 
 #undef TAG_SYN
 
@@ -41,8 +31,7 @@ namespace glk {
 			using tag = tag_<T> const *;
 
 			template <GLuint N>
-			void setAttribPointers(GLuint &locIdx, GLsizei stride, std::intptr_t offs, tag<float[N]>) {
-				std::clog << "ptr\t" << locIdx << "\t" << stride << "\t" << offs << "\n";
+			void setAttribPointers(GLuint &locIdx, GLsizei stride, std::intptr_t offs, tag<GLfloat[N]>) {
 				TRY_GL(glVertexAttribPointer(locIdx, N, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<GLvoid *>(offs)));
 				++locIdx;
 			}
