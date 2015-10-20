@@ -2,6 +2,12 @@
 
 namespace glk {
 	namespace gl {
+		template <class T>
+		GLuint setAttribPointers(GLuint locIdx) {
+			setAttribPointers(locIdx, sizeof(T), 0u, attribTag<T>{});
+			return locIdx;
+		}
+
 		template <class Vertex>
 		template <class InputIter, class>
 		Instancer<Vertex>::Instancer(InputIter vertBeg, InputIter vertEnd)
@@ -63,12 +69,11 @@ namespace glk {
 
 			// Running index of shader attribute locations
 			GLuint locIdx = 0u;
-			using attribPointers::setAttribPointers;
 
 			TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, _instancer.vertexVbo()));
 			{
 				GLuint prevLoc = locIdx;
-				setAttribPointers(locIdx, sizeof(Vertex), 0u, attribPointers::tag<Vertex>{});
+				locIdx = setAttribPointers<Vertex>(locIdx);
 				for(GLuint i = prevLoc; i < locIdx; ++i)
 					TRY_GL(glEnableVertexAttribArray(i));
 			}
@@ -77,7 +82,7 @@ namespace glk {
 			TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, _attrVbo));
 			{
 				GLuint prevLoc = locIdx;
-				setAttribPointers(locIdx, sizeof(Attrib), 0u, attribPointers::tag<Attrib>{});
+				locIdx = setAttribPointers<Attrib>(locIdx);
 				for(GLuint i = prevLoc; i < locIdx; ++i) {
 					TRY_GL(glEnableVertexAttribArray(i));
 					TRY_GL(glVertexAttribDivisor(i, 1u));

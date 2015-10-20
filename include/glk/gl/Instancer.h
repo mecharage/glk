@@ -12,6 +12,8 @@
 
 namespace glk {
 	namespace gl {
+		template <class T>
+		GLuint setAttribPointers(GLuint locIdx = 0u);
 
 		template <class Vertex, class Attrib>
 		struct InstanceQueue;

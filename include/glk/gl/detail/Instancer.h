@@ -14,33 +14,30 @@
 
 namespace glk {
 	namespace gl {
-		namespace attribPointers {
-
-			template <class T>
-			struct tag_ {};
+		template <class T>
+		struct attribTag_ { };
 
 #define TAG_SYN(type, syn)\
     template <>\
-    struct tag_<type> : tag_<syn> {};
+    struct attribTag_<type> : attribTag_<syn> {};
 
 #include <glk/gl/detail/glmTypes.h>
 
 #undef TAG_SYN
 
-			template <class T>
-			using tag = tag_<T> const *;
+		template <class T>
+		using attribTag = attribTag_<T> const *;
 
-			template <GLuint N>
-			void setAttribPointers(GLuint &locIdx, GLsizei stride, std::intptr_t offs, tag<GLfloat[N]>) {
-				TRY_GL(glVertexAttribPointer(locIdx, N, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<GLvoid *>(offs)));
-				++locIdx;
-			}
+		template <GLuint N>
+		void setAttribPointers(GLuint &locIdx, GLsizei stride, std::intptr_t offs, attribTag<GLfloat[N]>) {
+			TRY_GL(glVertexAttribPointer(locIdx, N, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<GLvoid *>(offs)));
+			++locIdx;
+		}
 
-			template <class T, GLuint N>
-			void setAttribPointers(GLuint &locIdx, GLsizei stride, std::intptr_t offs, tag<T[N]>) {
-				for(GLuint i = 0u; i < N; ++i)
-					setAttribPointers(locIdx, stride, offs + i * sizeof(T), tag<T>{});
-			}
+		template <class T, GLuint N>
+		void setAttribPointers(GLuint &locIdx, GLsizei stride, std::intptr_t offs, attribTag<T[N]>) {
+			for(GLuint i = 0u; i < N; ++i)
+				setAttribPointers(locIdx, stride, offs + i * sizeof(T), attribTag<T>{});
 		}
 	}
 }
@@ -72,7 +69,7 @@ namespace glk {
             structName,\
             GLK_DETAIL_ATTRIB_MEMBER_NAME(member)\
         ),\
-        glk::gl::attribPointers::tag<GLK_DETAIL_ATTRIB_MEMBER_TYPE(member)>{}\
+        glk::gl::attribTag<GLK_DETAIL_ATTRIB_MEMBER_TYPE(member)>{}\
     );
 
 #define GLK_GL_ATTRIB_STRUCT_(name, members)\
@@ -83,8 +80,8 @@ namespace glk {
             members\
         )\
     };\
-    void setAttribPointers(GLuint &locIdx, GLuint stride, std::intptr_t offs, glk::gl::attribPointers::tag<name>) {\
-        using glk::gl::attribPointers::setAttribPointers;\
+    void setAttribPointers(GLuint &locIdx, GLuint stride, std::intptr_t offs, glk::gl::attribTag<name>) {\
+        using glk::gl::setAttribPointers;\
         BOOST_PP_SEQ_FOR_EACH(\
             GLK_GL_DETAIL_SET_ATTRIB_PTRS,\
             name,\
