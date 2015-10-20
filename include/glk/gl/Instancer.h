@@ -5,27 +5,27 @@
 #include <GL/glew.h>
 
 #include <glk/gl/util.h>
-#include <glk/gl/detail_Instancer.h>
+#include <glk/gl/detail/Instancer.h>
 
 // Defines the struct `name` with members declared from `members`,
 // and a static setAttribPointers() function which sets attribute pointers
 // for each member.
 // `members` should be a double-parenthesised Boost.PP seq,
 // i.e. `((int, foo))((float, bar))`
-#define GLK_GL_DEFINE_INSTANCE_ATTRIBS(name, vertexType, members)\
-    GLK_GL_DEFINE_INSTANCE_ATTRIBS_(name, vertexType, GLK_PP_SEQ_DOUBLE_PARENS(members))
+#define GLK_GL_ATTRIB_STRUCT(name, members)\
+    GLK_GL_ATTRIB_STRUCT_(name, GLK_PP_SEQ_DOUBLE_PARENS(members))
 
 namespace glk {
 	namespace gl {
 
-		template <class>
+		template <class Vertex, class Attrib>
 		struct InstanceQueue;
 
-		template <class AttrDesc>
+		template <class Vertex>
 		struct Instancer {
 			//TODO : check that the iterators are ContiguousIterators (C++17)
 			template <class InputIter, class = std::enable_if<std::is_same<
-				typename std::iterator_traits<InputIter>::value_type, typename AttrDesc::VertexType
+				typename std::iterator_traits<InputIter>::value_type, Vertex
 			>{}>>
 			Instancer(InputIter vertBeg, InputIter vertEnd);
 			Instancer(Instancer &&other);
@@ -40,28 +40,28 @@ namespace glk {
 			GLuint verticeCount() const;
 			GLuint vertexVbo() const;
 
-			InstanceQueue<AttrDesc> makeQueue() const;
+			template <class Attrib>
+			InstanceQueue<Vertex, Attrib> makeQueue() const;
 
 		private:
 			GLuint _vertexVbo;
 			GLuint _verticeCount;
 		};
 
-		template <class AttrDesc>
+		template <class Vertex, class Attrib>
 		struct InstanceQueue {
 			using VertexType = glm::vec2;
 
-			InstanceQueue(Instancer<AttrDesc> const &instancer);
+			InstanceQueue(Instancer<Vertex> const &instancer);
 			InstanceQueue(InstanceQueue &&other);
 
 			~InstanceQueue();
 
-			InstanceQueue &operator = (InstanceQueue &&rhs);
-
 			InstanceQueue(InstanceQueue const &) = delete;
 			InstanceQueue &operator =(InstanceQueue const &) = delete;
+			InstanceQueue &operator =(InstanceQueue &&rhs) = delete;
 
-			void enqueue(AttrDesc const &attribs);
+			void enqueue(Attrib const &attribs);
 
 			void clear();
 
@@ -70,9 +70,9 @@ namespace glk {
 			void display();
 
 		private:
-			Instancer<AttrDesc> const &_instancer;
+			Instancer<Vertex> const &_instancer;
 			GLuint _attrVao, _attrVbo;
-			std::vector<AttrDesc> _attribs;
+			std::vector<Attrib> _attribs;
 			GLuint _capacity;
 			bool _dirty;
 		};

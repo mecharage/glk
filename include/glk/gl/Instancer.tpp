@@ -2,33 +2,33 @@
 
 namespace glk {
 	namespace gl {
-		template <class AttrDesc>
+		template <class Vertex>
 		template <class InputIter, class>
-		Instancer<AttrDesc>::Instancer(InputIter vertBeg, InputIter vertEnd)
+		Instancer<Vertex>::Instancer(InputIter vertBeg, InputIter vertEnd)
 			: _verticeCount(std::distance(vertBeg, vertEnd)) {
 			TRY_GL(glGenBuffers(1, &_vertexVbo));
 			TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, _vertexVbo));
 
-			TRY_GL(glBufferData(GL_ARRAY_BUFFER, _verticeCount * sizeof(*vertBeg), std::addressof(*vertBeg), GL_STATIC_DRAW));
+			TRY_GL(glBufferData(GL_ARRAY_BUFFER, _verticeCount * sizeof(Vertex), std::addressof(*vertBeg), GL_STATIC_DRAW));
 
 			TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, 0u));
 		}
 
-		template <class AttrDesc>
-		Instancer<AttrDesc>::Instancer(gl::Instancer<AttrDesc> &&other)
+		template <class Vertex>
+		Instancer<Vertex>::Instancer(gl::Instancer<Vertex> &&other)
 			: _vertexVbo{other._vertexVbo}
 			, _verticeCount{other._verticeCount} {
 			other._vertexVbo = 0u;
 			other._verticeCount = 0u;
 		}
 
-		template <class AttrDesc>
-		Instancer<AttrDesc>::~Instancer() {
+		template <class Vertex>
+		Instancer<Vertex>::~Instancer() {
 			TRY_GL(glDeleteBuffers(1, &_vertexVbo));
 		}
 
-		template <class AttrDesc>
-		Instancer<AttrDesc> &Instancer<AttrDesc>::operator =(gl::Instancer<AttrDesc> &&rhs) {
+		template <class Vertex>
+		Instancer<Vertex> &Instancer<Vertex>::operator =(Instancer &&rhs) {
 			TRY_GL(glDeleteBuffers(1, &_vertexVbo));
 			_vertexVbo = rhs._vertexVbo;
 			_verticeCount = rhs._verticeCount;
@@ -37,47 +37,58 @@ namespace glk {
 			return *this;
 		}
 
-		template <class AttrDesc>
-		GLuint Instancer<AttrDesc>::verticeCount() const {
+		template <class Vertex>
+		GLuint Instancer<Vertex>::verticeCount() const {
 			return _verticeCount;
 		}
 
-		template <class AttrDesc>
-		GLuint Instancer<AttrDesc>::vertexVbo() const {
+		template <class Vertex>
+		GLuint Instancer<Vertex>::vertexVbo() const {
 			return _vertexVbo;
 		}
 
-		template <class AttrDesc>
-		InstanceQueue<AttrDesc> Instancer<AttrDesc>::makeQueue() const {
+		template <class Vertex>
+		template <class Attrib>
+		InstanceQueue<Vertex, Attrib> Instancer<Vertex>::makeQueue() const {
 			return {*this};
 		}
 
-		template <class AttrDesc>
-		InstanceQueue<AttrDesc>::InstanceQueue(Instancer<AttrDesc> const &instancer)
+		template <class Vertex, class Attrib>
+		InstanceQueue<Vertex, Attrib>::InstanceQueue(Instancer<Vertex> const &instancer)
 			: _instancer{instancer}
 			, _capacity{0u}
 			, _dirty{false} {
 			TRY_GL(glGenVertexArrays(1, &_attrVao));
 			TRY_GL(glBindVertexArray(_attrVao));
 
-			// Vetex data pointer
+			// Running index of shader attribute locations
+			GLuint locIdx = 0u;
+			using attribPointers::setAttribPointers;
+
 			TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, _instancer.vertexVbo()));
 			{
-				GLuint locIdx = 0u;
-				detail_Instancer::RegAttr<typename AttrDesc::VertexType>::reg(locIdx, 0, 0);
-				TRY_GL(glVertexAttribDivisor(0u, 0));
+				GLuint prevLoc = locIdx;
+				setAttribPointers(locIdx, sizeof(Vertex), 0u, attribPointers::tag<Vertex>{});
+				for(GLuint i = prevLoc; i < locIdx; ++i)
+					TRY_GL(glEnableVertexAttribArray(i));
 			}
 
-			// Set the attributes VBO as provider for other varyings
 			TRY_GL(glGenBuffers(1, &_attrVbo));
 			TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, _attrVbo));
-			AttrDesc::setAttribPointers();
+			{
+				GLuint prevLoc = locIdx;
+				setAttribPointers(locIdx, sizeof(Attrib), 0u, attribPointers::tag<Attrib>{});
+				for(GLuint i = prevLoc; i < locIdx; ++i) {
+					TRY_GL(glEnableVertexAttribArray(i));
+					TRY_GL(glVertexAttribDivisor(i, 1u));
+				}
+			}
 
 			TRY_GL(glBindVertexArray(0u));
 		}
 
-		template <class AttrDesc>
-		InstanceQueue<AttrDesc>::InstanceQueue(InstanceQueue &&other)
+		template <class Vertex, class Attrib>
+		InstanceQueue<Vertex, Attrib>::InstanceQueue(InstanceQueue &&other)
 			: _instancer{other._instancer}
 			, _attrVao{other._attrVao}
 			, _attrVbo{other._attrVbo}
@@ -88,56 +99,41 @@ namespace glk {
 			other._capacity = 0u;
 		}
 
-		template <class AttrDesc>
-		InstanceQueue<AttrDesc>::~InstanceQueue() {
+		template <class Vertex, class Attrib>
+		InstanceQueue<Vertex, Attrib>::~InstanceQueue() {
 			TRY_GL(glDeleteVertexArrays(1, &_attrVbo));
 			TRY_GL(glDeleteBuffers(1, &_attrVao));
 		}
 
-		template <class AttrDesc>
-		InstanceQueue<AttrDesc> &InstanceQueue<AttrDesc>::operator =(gl::InstanceQueue<AttrDesc> &&rhs) {
-			TRY_GL(glDeleteVertexArrays(1, &_attrVbo));
-			TRY_GL(glDeleteBuffers(1, &_attrVao));
-			_instancer = rhs._instancer;
-			_attrVao = rhs._attrVao;
-			_attrVbo = rhs._attrVbo;
-			_attribs = std::move(rhs._attribs);
-			_capacity = rhs._capacity;
-			rhs._attrVao = 0u;
-			rhs._attrVbo = 0u;
-			rhs._capacity = 0u;
-			return *this;
-		}
-
-		template <class AttrDesc>
-		void InstanceQueue<AttrDesc>::enqueue(AttrDesc const &attribs) {
+		template <class Vertex, class Attrib>
+		void InstanceQueue<Vertex, Attrib>::enqueue(Attrib const &attribs) {
 			_attribs.push_back(attribs);
 			_dirty = true;
 		}
 
-		template <class AttrDesc>
-		void InstanceQueue<AttrDesc>::clear() {
+		template <class Vertex, class Attrib>
+		void InstanceQueue<Vertex, Attrib>::clear() {
 			_attribs.clear();
 			_dirty = false;
 		}
 
-		template <class AttrDesc>
-		void InstanceQueue<AttrDesc>::upload() {
+		template <class Vertex, class Attrib>
+		void InstanceQueue<Vertex, Attrib>::upload() {
 			TRY_GL(glBindVertexArray(_attrVao));
 			TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, _attrVbo));
 
 			if(_attribs.capacity() > _capacity) {
 				_capacity = _attribs.capacity();
-				TRY_GL(glBufferData(GL_ARRAY_BUFFER, _capacity * sizeof(AttrDesc), nullptr, GL_DYNAMIC_DRAW));
+				TRY_GL(glBufferData(GL_ARRAY_BUFFER, _capacity * sizeof(Attrib), nullptr, GL_DYNAMIC_DRAW));
 			}
 
-			TRY_GL(glBufferSubData(GL_ARRAY_BUFFER, 0u, _attribs.size() * sizeof(AttrDesc), _attribs.data()));
+			TRY_GL(glBufferSubData(GL_ARRAY_BUFFER, 0u, _attribs.size() * sizeof(Attrib), _attribs.data()));
 
 			_dirty = false;
 		}
 
-		template <class AttrDesc>
-		void InstanceQueue<AttrDesc>::display() {
+		template <class Vertex, class Attrib>
+		void InstanceQueue<Vertex, Attrib>::display() {
 			if(_dirty)
 				upload();
 			else
