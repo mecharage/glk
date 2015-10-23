@@ -80,7 +80,7 @@ namespace glk {
             members\
         )\
     };\
-    void setAttribPointers(GLuint &locIdx, GLuint stride, std::intptr_t offs, glk::gl::attribTag<name>) {\
+    inline void setAttribPointers(GLuint &locIdx, GLuint stride, std::intptr_t offs, glk::gl::attribTag<name>) {\
         using glk::gl::setAttribPointers;\
         BOOST_PP_SEQ_FOR_EACH(\
             GLK_GL_DETAIL_SET_ATTRIB_PTRS,\
