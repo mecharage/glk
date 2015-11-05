@@ -5,6 +5,7 @@
 #include <GL/glew.h>
 
 #include <glk/gl/util.h>
+#include <glk/gl/GlObjects.h>
 #include <glk/gl/detail/Instancer.h>
 
 #define GLK_GL_ATTRIB_STRUCT(name, members)\
@@ -25,23 +26,23 @@ namespace glk {
 				typename std::iterator_traits<InputIter>::value_type, Vertex
 			>{}>>
 			Instancer(InputIter vertBeg, InputIter vertEnd);
-			Instancer(Instancer &&other);
+			Instancer(Instancer &&other) = default;
 
-			~Instancer();
+			~Instancer() = default;
 
-			Instancer &operator =(Instancer &&rhs);
+			Instancer &operator =(Instancer &&rhs) = default;
 
 			Instancer(Instancer const &) = delete;
 			Instancer &operator =(Instancer const &) = delete;
 
 			GLuint verticeCount() const;
-			GLuint vertexVbo() const;
+			GLuint vertexVboName() const;
 
 			template <class Attrib>
 			InstanceQueue<Vertex, Attrib> makeQueue() const;
 
 		private:
-			GLuint _vertexVbo;
+			Vbo _vertexVbo;
 			GLuint _verticeCount;
 		};
 
@@ -52,7 +53,7 @@ namespace glk {
 			InstanceQueue(Instancer<Vertex> const &instancer);
 			InstanceQueue(InstanceQueue &&other);
 
-			~InstanceQueue();
+			~InstanceQueue() = default;
 
 			InstanceQueue(InstanceQueue const &) = delete;
 			InstanceQueue &operator =(InstanceQueue const &) = delete;
@@ -60,15 +61,15 @@ namespace glk {
 
 			void enqueue(Attrib const &attribs);
 
-			void clear();
-
 			void upload();
-
 			void display();
+			void clear();
+			void displayAndClear();
 
 		private:
 			Instancer<Vertex> const &_instancer;
-			GLuint _attrVao, _attrVbo;
+			Vbo _attrVbo;
+			Vao _attrVao;
 			std::vector<Attrib> _attribs;
 			GLuint _capacity;
 			bool _dirty;

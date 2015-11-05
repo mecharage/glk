@@ -19,7 +19,7 @@ namespace glk {
 
 #define TAG_SYN(type, syn)\
     template <>\
-    struct attribTag_<type> : attribTag_<syn> {};
+    struct attribTag_<type> : attribTag_<syn> {}
 
 #include <glk/gl/detail/glmTypes.h>
 
