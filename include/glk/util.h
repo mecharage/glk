@@ -61,6 +61,11 @@ namespace glk {
 
 #endif
 
+	template <class T>
+	constexpr T &lvalue(T &&v) {
+		return v;
+	}
+
 	template <class T, class... Targs>
 	std::array<T, sizeof...(Targs) > makeArray(Targs &&... args) {
 		return std::array<T, sizeof...(Targs)>{
