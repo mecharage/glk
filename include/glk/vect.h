@@ -87,7 +87,7 @@ namespace glk {
 		 * @param angle angle par rapport à l'axe x, dans le sens direct, en degré (argument du point)
 		 * @return Un nouveau vecteur
 		 */
-		static constexpr vect lengthAngle(float length, float angle) {
+		static vect lengthAngle(float length, float angle) {
 			return vect(length * std::cos(angle), length * std::sin(angle));
 		}
 
@@ -97,7 +97,7 @@ namespace glk {
 		 * @param angle angle par rapport à l'axe x, dans le sens direct, en radian (argument du point)
 		 * @return Un nouveau vecteur
 		 */
-		static constexpr vect lengthAngle(float length, radian angle) {
+		static vect lengthAngle(float length, radian angle) {
 			return vect(length * std::cos(angle), length * std::sin(angle));
 		}
 
@@ -263,7 +263,7 @@ namespace glk {
 		 * Norme, ou longueur, du vecteur (module du point)
 		 * @return le norme de cette instance de vect
 		 */
-		constexpr float length() const {
+		float length() const {
 			return std::sqrt(lengthPow2());
 		}
 
@@ -320,7 +320,7 @@ namespace glk {
 		 * Calcule l'angle formé par le vecteur avec l'horizontale en degré
 		 * @return l'argument du vecteur en degré dans [-180, 180]
 		 */
-		constexpr float angle() const {
+		float angle() const {
 			return std::atan2(x, y);
 		}
 
@@ -328,7 +328,7 @@ namespace glk {
 		 * Calcule l'angle formé par le vecteur avec l'horizontale en radian
 		 * @return l'argument du vecteur en radian dans [-π, π]
 		 */
-		constexpr radian angleRad() const {
+		radian angleRad() const {
 			return std::atan2(x, y);
 		}
 
