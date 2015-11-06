@@ -5,7 +5,9 @@
 #include <GL/glew.h>
 
 #include <glk/gl/util.h>
-#include <glk/gl/GlObjects.h>
+#include <glk/gl/ObjectNames.h>
+#include <glk/gl/Vbo.h>
+
 #include <glk/gl/detail/Instancer.h>
 
 #define GLK_GL_ATTRIB_STRUCT(name, members)\
@@ -21,11 +23,9 @@ namespace glk {
 
 		template <class Vertex>
 		struct Instancer {
-			//TODO : check that the iterators are ContiguousIterators (C++17)
-			template <class InputIter, class = std::enable_if<std::is_same<
-				typename std::iterator_traits<InputIter>::value_type, Vertex
-			>{}>>
-			Instancer(InputIter vertBeg, InputIter vertEnd);
+
+			template <class ContigIt>
+			Instancer(ContigIt firstVert, ContigIt lastVert);
 			Instancer(Instancer &&other) = default;
 
 			~Instancer() = default;
@@ -42,7 +42,7 @@ namespace glk {
 			InstanceQueue<Vertex, Attrib> makeQueue() const;
 
 		private:
-			Vbo _vertexVbo;
+			Vbo<Vertex> _vertexVbo;
 			GLuint _verticeCount;
 		};
 
@@ -51,13 +51,12 @@ namespace glk {
 			using VertexType = glm::vec2;
 
 			InstanceQueue(Instancer<Vertex> const &instancer);
-			InstanceQueue(InstanceQueue &&other);
 
-			~InstanceQueue() = default;
+			InstanceQueue(InstanceQueue &&other) = default;
+			InstanceQueue &operator =(InstanceQueue &&rhs) = default;
 
 			InstanceQueue(InstanceQueue const &) = delete;
 			InstanceQueue &operator =(InstanceQueue const &) = delete;
-			InstanceQueue &operator =(InstanceQueue &&rhs) = delete;
 
 			void enqueue(Attrib const &attribs);
 
@@ -68,8 +67,8 @@ namespace glk {
 
 		private:
 			Instancer<Vertex> const &_instancer;
-			Vbo _attrVbo;
-			Vao _attrVao;
+			Vbo<Attrib> _attrVbo;
+			VaoName _attrVao;
 			std::vector<Attrib> _attribs;
 			GLuint _capacity;
 			bool _dirty;

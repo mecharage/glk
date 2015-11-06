@@ -9,15 +9,10 @@ namespace glk {
 		}
 
 		template <class Vertex>
-		template <class InputIter, class>
-		Instancer<Vertex>::Instancer(InputIter vertBeg, InputIter vertEnd)
-			: _verticeCount(std::distance(vertBeg, vertEnd)) {
-			TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, _vertexVbo.name()));
-
-			TRY_GL(glBufferData(GL_ARRAY_BUFFER, _verticeCount * sizeof(Vertex), std::addressof(*vertBeg), GL_STATIC_DRAW));
-
-			TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, 0u));
-		}
+		template <class ContigIt>
+		Instancer<Vertex>::Instancer(ContigIt firstVert, ContigIt lastVert)
+			: _vertexVbo{firstVert, lastVert}
+			, _verticeCount{GLuint(std::distance(firstVert, lastVert))} { }
 
 		template <class Vertex>
 		GLuint Instancer<Vertex>::verticeCount() const {
@@ -40,7 +35,7 @@ namespace glk {
 			: _instancer{instancer}
 			, _capacity{0u}
 			, _dirty{false} {
-			TRY_GL(glBindVertexArray(_attrVao.name()));
+			TRY_GL(glBindVertexArray(_attrVao));
 
 			// Running index of shader attribute locations
 			GLuint locIdx = 0u;
@@ -67,16 +62,6 @@ namespace glk {
 		}
 
 		template <class Vertex, class Attrib>
-		InstanceQueue<Vertex, Attrib>::InstanceQueue(InstanceQueue &&other)
-			: _instancer{other._instancer}
-			, _attrVao{std::move(other._attrVao)}
-			, _attrVbo{std::move(other._attrVbo)}
-			, _attribs{std::move(other._attribs)}
-			, _capacity{other._capacity} {
-			other._capacity = 0u;
-		}
-
-		template <class Vertex, class Attrib>
 		void InstanceQueue<Vertex, Attrib>::enqueue(Attrib const &attribs) {
 			_attribs.push_back(attribs);
 			_dirty = true;
@@ -90,16 +75,7 @@ namespace glk {
 
 		template <class Vertex, class Attrib>
 		void InstanceQueue<Vertex, Attrib>::upload() {
-			TRY_GL(glBindVertexArray(_attrVao.name()));
-			TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, _attrVbo.name()));
-
-			if(_attribs.capacity() > _capacity) {
-				_capacity = _attribs.capacity();
-				TRY_GL(glBufferData(GL_ARRAY_BUFFER, _capacity * sizeof(Attrib), nullptr, GL_DYNAMIC_DRAW));
-			}
-
-			TRY_GL(glBufferSubData(GL_ARRAY_BUFFER, 0u, _attribs.size() * sizeof(Attrib), _attribs.data()));
-
+			_attrVbo.assign(begin(_attribs), end(_attribs));
 			_dirty = false;
 		}
 
@@ -108,7 +84,7 @@ namespace glk {
 			if(_dirty)
 				upload();
 			else
-				TRY_GL(glBindVertexArray(_attrVao.name()));
+				TRY_GL(glBindVertexArray(_attrVao));
 
 			TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, _instancer.vertexVboName()));
 			TRY_GL(glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, _instancer.verticeCount(), _attribs.size()));
