@@ -19,38 +19,10 @@ namespace glk {
 		GLuint setAttribPointers(GLuint locIdx = 0u);
 
 		template <class Vertex, class Attrib>
-		struct InstanceQueue;
-
-		template <class Vertex>
-		struct Instancer {
-
-			template <class ContigIt>
-			Instancer(ContigIt firstVert, ContigIt lastVert);
-			Instancer(Instancer &&other) = default;
-
-			~Instancer() = default;
-
-			Instancer &operator =(Instancer &&rhs) = default;
-
-			Instancer(Instancer const &) = delete;
-			Instancer &operator =(Instancer const &) = delete;
-
-			GLuint verticeCount() const;
-			GLuint vertexVboName() const;
-
-			template <class Attrib>
-			InstanceQueue<Vertex, Attrib> makeQueue() const;
-
-		private:
-			Vbo<Vertex> _vertexVbo;
-			GLuint _verticeCount;
-		};
-
-		template <class Vertex, class Attrib>
 		struct InstanceQueue {
 			using VertexType = glm::vec2;
 
-			InstanceQueue(Instancer<Vertex> const &instancer);
+			InstanceQueue(Vbo<Vertex> const &vertices);
 
 			InstanceQueue(InstanceQueue &&other) = default;
 			InstanceQueue &operator =(InstanceQueue &&rhs) = default;
@@ -66,7 +38,7 @@ namespace glk {
 			void displayAndClear();
 
 		private:
-			Instancer<Vertex> const &_instancer;
+			Vbo<Vertex> const &_vertVbo;
 			Vbo<Attrib> _attrVbo;
 			VaoName _attrVao;
 			std::vector<Attrib> _attribs;

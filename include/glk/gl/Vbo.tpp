@@ -26,21 +26,27 @@ namespace glk {
 		}
 
 		template <class Attrib>
-		void Vbo<Attrib>::data(GLuint capacity, Attrib const *data) {
+		void Vbo<Attrib>::data(GLuint size, Attrib const *data) {
 			TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, _name));
 
-			if(capacity > _capacity) {
-				TRY_GL(glBufferData(GL_ARRAY_BUFFER, capacity * sizeof(Attrib), data, GL_STATIC_DRAW));
-				_capacity = capacity;
+			if(size > _capacity) {
+				TRY_GL(glBufferData(GL_ARRAY_BUFFER, size * sizeof(Attrib), data, GL_STATIC_DRAW));
+				_capacity = size;
 			} else
-				TRY_GL(glBufferSubData(GL_ARRAY_BUFFER, 0, capacity * sizeof(Attrib), data));
+				TRY_GL(glBufferSubData(GL_ARRAY_BUFFER, 0, size * sizeof(Attrib), data));
 
+			_size = size;
 			TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, 0u));
 		}
 
 		template <class Attrib>
 		GLuint Vbo<Attrib>::name() const {
 			return _name;
+		}
+
+		template <class Attrib>
+		GLuint Vbo<Attrib>::size() const {
+			return _size;
 		}
 	}
 }

@@ -31,10 +31,11 @@ namespace glk {
 			void assign(ContigIt first, ContigIt last);
 
 			GLuint name() const;
+			GLuint size() const;
 
 		private:
 			VboName _name;
-			GLuint _capacity = 0u;
+			GLuint _size = 0u, _capacity = 0u;
 		};
 	}
 }

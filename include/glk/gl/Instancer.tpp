@@ -8,31 +8,9 @@ namespace glk {
 			return locIdx;
 		}
 
-		template <class Vertex>
-		template <class ContigIt>
-		Instancer<Vertex>::Instancer(ContigIt firstVert, ContigIt lastVert)
-			: _vertexVbo{firstVert, lastVert}
-			, _verticeCount{GLuint(std::distance(firstVert, lastVert))} { }
-
-		template <class Vertex>
-		GLuint Instancer<Vertex>::verticeCount() const {
-			return _verticeCount;
-		}
-
-		template <class Vertex>
-		GLuint Instancer<Vertex>::vertexVboName() const {
-			return _vertexVbo.name();
-		}
-
-		template <class Vertex>
-		template <class Attrib>
-		InstanceQueue<Vertex, Attrib> Instancer<Vertex>::makeQueue() const {
-			return {*this};
-		}
-
 		template <class Vertex, class Attrib>
-		InstanceQueue<Vertex, Attrib>::InstanceQueue(Instancer<Vertex> const &instancer)
-			: _instancer{instancer}
+		InstanceQueue<Vertex, Attrib>::InstanceQueue(Vbo<Vertex> const &vertices)
+			: _vertVbo{vertices}
 			, _capacity{0u}
 			, _dirty{false} {
 			TRY_GL(glBindVertexArray(_attrVao));
@@ -40,7 +18,7 @@ namespace glk {
 			// Running index of shader attribute locations
 			GLuint locIdx = 0u;
 
-			TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, _instancer.vertexVboName()));
+			TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, _vertVbo.name()));
 			{
 				GLuint prevLoc = locIdx;
 				locIdx = setAttribPointers<Vertex>(locIdx);
@@ -86,8 +64,8 @@ namespace glk {
 			else
 				TRY_GL(glBindVertexArray(_attrVao));
 
-			TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, _instancer.vertexVboName()));
-			TRY_GL(glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, _instancer.verticeCount(), _attribs.size()));
+			TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, _vertVbo.name()));
+			TRY_GL(glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, _vertVbo.size(), _attribs.size()));
 		}
 
 		template <class Vertex, class Attrib>
