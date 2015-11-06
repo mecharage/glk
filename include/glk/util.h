@@ -44,7 +44,7 @@ namespace glk {
 
 	template <class Tenum>
 	constexpr auto val(Tenum && enumVal) {
-		return static_cast<std::underlying_type_t<std::remove_reference_t < Tenum>>>(enumVal);
+		return static_cast<std::underlying_type_t<std::remove_reference_t<Tenum>>>(enumVal);
 	}
 
 #else
@@ -127,11 +127,11 @@ namespace glk {
 		return ret;
 	}
 
-	inline constexpr float stepCeil(float x, float step) {
+	inline float stepCeil(float x, float step) {
 		return std::ceil(x / step) * step;
 	}
 
-	inline constexpr float stepFloor(float x, float step) {
+	inline float stepFloor(float x, float step) {
 		return std::floor(x / step) * step;
 	}
 
