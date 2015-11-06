@@ -338,14 +338,14 @@ namespace glk {
 		 * @param b un vecteur
 		 * @return l'angle ab orienté dans le sens direct, en degré dans [-180, 180]
 		 */
-		static constexpr float angleBetween(const vect& a, const vect& b);
+		static float angleBetween(const vect& a, const vect& b);
 		/**
 		 * Calcule l'angle orienté entre a et b, en radian
 		 * @param a un vecteur
 		 * @param b un vecteur
 		 * @return l'angle ab orienté dans le sens direct, en radian dans [-π, π]
 		 */
-		static constexpr radian angleRadBetween(const vect& a, const vect& b);
+		static radian angleRadBetween(const vect& a, const vect& b);
 
 		/**
 		 * Effectue une rotation de cette instance de vect

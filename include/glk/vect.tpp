@@ -71,7 +71,7 @@ namespace glk {
 	}
 
 	/* FIXIT : Est-ce que c'est optimisé par le compilateur, comme ça ? */
-	inline constexpr float vect::angleBetween(const vect &a, const vect &b) {
+	inline float vect::angleBetween(const vect &a, const vect &b) {
 		return (((det(a, b) >= 0.0f) ? 1.0f : -1.0f) *
 			rad2deg(std::acos(
 				/*cos(A^B) = */ (a * b) / std::sqrt(a.lengthPow2() * b.lengthPow2())
@@ -79,7 +79,7 @@ namespace glk {
 		);
 	}
 
-	inline constexpr radian vect::angleRadBetween(const vect &a, const vect &b) {
+	inline radian vect::angleRadBetween(const vect &a, const vect &b) {
 		return (((det(a, b) >= 0.0f) ? 1.0f : -1.0f) *
 			std::acos(
 				/*cos(A^B) = */ (a * b) / std::sqrt(a.lengthPow2() * b.lengthPow2())
