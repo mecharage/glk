@@ -61,8 +61,8 @@ namespace glk {
 		void InstanceQueue<Vertex, Attrib>::display() {
 			if(_dirty)
 				upload();
-			else
-				TRY_GL(glBindVertexArray(_attrVao));
+
+			TRY_GL(glBindVertexArray(_attrVao));
 
 			TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, _vertVbo.name()));
 			TRY_GL(glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, _vertVbo.size(), _attribs.size()));
