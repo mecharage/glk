@@ -51,7 +51,7 @@ namespace glk {
 		 * Constructeur à partir d'un vecteur non normé. Le nouveau vecteur pointe dans la même direction
 		 * @param other le vecteur de base
 		 */
-		constexpr vect_norme(vect const &other)
+		vect_norme(vect const &other)
 			: vect_norme(other.x, other.y, other.length()) { }
 
 		/**
@@ -211,7 +211,7 @@ namespace glk {
 		 * @param b un vecteur
 		 * @return l'angle ab orienté dans le sens direct, en degré dans [-180, 180]
 		 */
-		static constexpr float angleBetween(const vect_norme &a, const vect &b) {
+		static float angleBetween(const vect_norme &a, const vect &b) {
 			return rad2deg((det(a, b) >= 0.0f) ? std::acos((a * b) / b.length()) : -std::acos((a * b) / b.length()));
 		}
 
@@ -221,7 +221,7 @@ namespace glk {
 		 * @param b un vecteur normé
 		 * @return l'angle ab orienté dans le sens direct, en degré dans [-180, 180]
 		 */
-		static constexpr float angleBetween(const vect &a, const vect_norme &b) {
+		static float angleBetween(const vect &a, const vect_norme &b) {
 			return rad2deg((det(a, b) >= 0.0f) ? std::acos((a * b) / a.length()) : -std::acos((a * b) / a.length()));
 		}
 
@@ -231,7 +231,7 @@ namespace glk {
 		 * @param b un vecteur normé"
 		 * @return l'angle ab orienté dans le sens direct, en degré dans [-180, 180]
 		 */
-		static constexpr float angleBetween(const vect_norme &a, const vect_norme &b) {
+		static float angleBetween(const vect_norme &a, const vect_norme &b) {
 			return rad2deg((det(a, b) >= 0.0f) ? std::acos(a * b) : -std::acos(a * b));
 		}
 
@@ -241,7 +241,7 @@ namespace glk {
 		 * @param b un vecteur
 		 * @return l'angle ab orienté dans le sens direct, en radian dans [-π, π]
 		 */
-		static constexpr radian angleRadBetween(const vect_norme &a, const vect &b) {
+		static radian angleRadBetween(const vect_norme &a, const vect &b) {
 			return (det(a, b) >= 0.0f) ? std::acos((a * b) / b.length()) : -std::acos((a * b) / b.length());
 		}
 
@@ -251,7 +251,7 @@ namespace glk {
 		 * @param b un vecteur normé
 		 * @return l'angle ab orienté dans le sens direct, en radian dans [-π, π]
 		 */
-		static constexpr radian angleRadBetween(const vect &a, const vect_norme &b) {
+		static radian angleRadBetween(const vect &a, const vect_norme &b) {
 			return (det(a, b) >= 0.0f) ? std::acos((a * b) / a.length()) : -std::acos((a * b) / a.length());
 		}
 
@@ -261,7 +261,7 @@ namespace glk {
 		 * @param b un vecteur normé
 		 * @return l'angle ab orienté dans le sens direct, en radian dans [-π, π]
 		 */
-		static constexpr radian angleRadBetween(const vect_norme &a, const vect_norme &b) {
+		static radian angleRadBetween(const vect_norme &a, const vect_norme &b) {
 			return (det(a, b) >= 0.0f) ? std::acos(a * b) : -std::acos(a * b);
 		}
 

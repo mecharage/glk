@@ -302,7 +302,7 @@ namespace glk {
 		 * @param length la norme du nouveau vecteur
 		 * @return le vecteur calculé
 		 */
-		constexpr vect withLength(float newLength) const {
+		vect withLength(float newLength) const {
 			return (*this) * (newLength / length());
 		}
 
@@ -312,7 +312,7 @@ namespace glk {
 		 * @param b un point
 		 * @return la distance entre les 2 points
 		 */
-		static constexpr float distance(const point& a, const point& b) {
+		static float distance(const point& a, const point& b) {
 			return (b - a).length();
 		}
 
