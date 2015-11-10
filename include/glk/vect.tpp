@@ -66,7 +66,7 @@ namespace glk {
 		return (2.0f * (other * (*this))) * other - *this;
 	}
 
-	inline constexpr vect_norme vect::normalized() const {
+	inline vect_norme vect::normalized() const {
 		return (vect_norme) * this;
 	}
 

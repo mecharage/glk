@@ -286,7 +286,7 @@ namespace glk {
 		 * Calcule le vecteur normé colinéaire et de même sens à cette instance de vect (non nul)
 		 * @return le vecteur normé calculé
 		 */
-		constexpr vect_norme normalized() const;
+		vect_norme normalized() const;
 
 		/**
 		 * Change la norme de cette instance en conservant sa direction
